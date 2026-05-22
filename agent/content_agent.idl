@@ -1,0 +1,138 @@
+
+!@sails: 1.0.0
+
+service Content@0x6e6c0e38efa38a43 {
+    events {
+        AccessKeyRequested {
+            content_id: u64,
+            requester: ActorId,
+        },
+        ContentPublished {
+            id: u64,
+            creator: ActorId,
+            title: String,
+        },
+        PassMinted {
+            content_id: u64,
+            holder: ActorId,
+            price: u128,
+        },
+        RevenueWithdrawn {
+            creator: ActorId,
+            amount: u128,
+        },
+    }
+    functions {
+        /// Single content metadata (no AES key).
+        @query
+        GetContent(id: u64) -> Option<ContentMeta>;
+        /// Paginated list of content metadata (AES keys never included).
+        @query
+        ListContent(offset: u32, limit: u32) -> [ContentMeta];
+        /// Publish new gated content. Caller becomes creator.
+        /// `encrypted_aes_key` is "key_hex:iv_hex" from AES-256-GCM keygen.
+        Publish(title: String, description: String, ipfs_cid: String, price: u128, encrypted_aes_key: String, content_type: ContentType) -> u64;
+        /// Return AES key only if caller holds a pass (or is the creator).
+        RequestAccessKey(content_id: u64) -> Result<String, String>;
+    }
+    types {
+        /// Lightweight listing DTO — never exposes the AES key
+        struct ContentMeta {
+            id: u64,
+            creator: ActorId,
+            title: String,
+            description: String,
+            price: u128,
+            pass_count: u32,
+            content_type: ContentType,
+            published_at: u32,
+        }
+        enum ContentType {
+            Article,
+            Newsletter,
+        }
+    }
+}
+
+service Pass@0x7a087345765a3790 {
+    events {
+        AccessKeyRequested {
+            content_id: u64,
+            requester: ActorId,
+        },
+        ContentPublished {
+            id: u64,
+            creator: ActorId,
+            title: String,
+        },
+        PassMinted {
+            content_id: u64,
+            holder: ActorId,
+            price: u128,
+        },
+        RevenueWithdrawn {
+            creator: ActorId,
+            amount: u128,
+        },
+    }
+    functions {
+        /// Returns true if `holder` has access (pass or is creator).
+        @query
+        CheckAccess(content_id: u64, holder: ActorId) -> bool;
+        /// All passes owned by `holder`.
+        @query
+        GetUserPasses(holder: ActorId) -> [PassInfo];
+        /// Mint a pass. Message value must be >= content price.
+        /// Exact price accrues to creator; any excess is noted but kept (v1 simplicity).
+        MintPass(content_id: u64) -> Result<PassInfo, String>;
+    }
+    types {
+        struct PassInfo {
+            content_id: u64,
+            holder: ActorId,
+            minted_at: u32,
+        }
+    }
+}
+
+service Treasury@0x47a8dd7c5aa52256 {
+    events {
+        AccessKeyRequested {
+            content_id: u64,
+            requester: ActorId,
+        },
+        ContentPublished {
+            id: u64,
+            creator: ActorId,
+            title: String,
+        },
+        PassMinted {
+            content_id: u64,
+            holder: ActorId,
+            price: u128,
+        },
+        RevenueWithdrawn {
+            creator: ActorId,
+            amount: u128,
+        },
+    }
+    functions {
+        /// Claim all pending revenue for caller. Clears balance.
+        ClaimRevenue() -> Result<u128, String>;
+        /// Pending unclaimed revenue for a creator.
+        @query
+        GetPendingRevenue(creator: ActorId) -> u128;
+    }
+}
+
+program ContentAgent {
+    constructors {
+        /// Initialise program. Caller becomes admin.
+        New();
+    }
+    services {
+        Content@0x6e6c0e38efa38a43,
+        Pass@0x7a087345765a3790,
+        Treasury@0x47a8dd7c5aa52256,
+    }
+}
