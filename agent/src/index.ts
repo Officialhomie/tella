@@ -85,8 +85,8 @@ async function main(): Promise<void> {
     return
   }
 
-  // Daily digest at 09:00 UTC
-  cron.schedule('0 9 * * *', async () => {
+  // Daily digest at 13:00 UTC (08:00 EST / 14:00 CET / 21:00 SGT)
+  cron.schedule('0 13 * * *', async () => {
     try {
       await runDigestPipeline()
     } catch (err) {
@@ -106,7 +106,7 @@ async function main(): Promise<void> {
     await runDigestPipeline()
   }
 
-  console.log('[agent] Scheduled. Waiting for 09:00 UTC...')
+  console.log('[agent] Scheduled. Waiting for 13:00 UTC...')
 }
 
 main().catch((err) => {

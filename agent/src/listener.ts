@@ -35,7 +35,7 @@ export async function startEventListener(): Promise<void> {
       const shortHolder = `${holder.slice(0, 8)}...`
       await postToAgentChat(
         `New subscriber! ${shortHolder} just unlocked content #${content_id}. ` +
-        `Stay sharp — new digest drops every day at 09:00 UTC.`,
+        `Stay sharp — new digest drops every day at 13:00 UTC.`,
       ).catch((err) => console.error('[listener] chat post failed', err))
     }
   })
