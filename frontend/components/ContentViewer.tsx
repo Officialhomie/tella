@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { checkAccess, requestAccessKey } from '@/lib/contract'
 import { decrypt, splitKeyString } from '@/lib/encryption'
 import { PassMintButton } from './PassMintButton'
+import { EmptyState } from './ui/EmptyState'
 
 interface Props {
   contentId: string
@@ -27,8 +28,6 @@ export function ContentViewer({
   contentId,
   ipfsCid,
   price,
-  title,
-  description,
   walletAddress,
 }: Props) {
   const [state, setState] = useState<ViewState>({ type: 'loading' })
@@ -76,30 +75,30 @@ export function ContentViewer({
 
   if (state.type === 'loading' || state.type === 'unlocking') {
     return (
-      <div className="py-20 text-center text-neutral-500">
-        {state.type === 'loading' ? 'Checking access…' : 'Decrypting content…'}
+      <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[--border-strong] border-t-[--accent]" />
+        <p className="text-sm text-[--text-secondary]">
+          {state.type === 'loading' ? 'Checking access…' : 'Decrypting content…'}
+        </p>
       </div>
     )
   }
 
   if (state.type === 'no_wallet') {
     return (
-      <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-8 text-center">
-        <p className="mb-2 text-lg font-semibold text-neutral-200">Connect your wallet to read</p>
-        <p className="text-sm text-neutral-500">
-          You need a Polkadot-compatible wallet (Talisman, SubWallet) to access gated content.
-        </p>
-      </div>
+      <EmptyState
+        title="Connect your wallet to read"
+        description="You need a Polkadot-compatible wallet (Talisman, SubWallet) to access gated content."
+      />
     )
   }
 
   if (state.type === 'no_access') {
     return (
-      <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-8">
-        <div className="mb-6 text-center">
-          <h2 className="mb-2 text-xl font-semibold text-neutral-100">{title}</h2>
-          <p className="text-sm text-neutral-400">{description}</p>
-        </div>
+      <div className="rounded-lg border border-[--border] bg-[--surface] p-8">
+        <p className="mb-6 text-center text-sm text-[--text-secondary]">
+          Access pass required to read this content.
+        </p>
         <div className="mx-auto max-w-sm">
           <PassMintButton
             contentId={contentId}
@@ -108,8 +107,8 @@ export function ContentViewer({
             onSuccess={unlock}
           />
         </div>
-        <p className="mt-4 text-center text-xs text-neutral-600">
-          One-time access pass. Yours forever, on-chain.
+        <p className="mt-4 text-center text-xs text-[--text-muted]">
+          One-time purchase. Access recorded on-chain, forever.
         </p>
       </div>
     )
@@ -117,14 +116,14 @@ export function ContentViewer({
 
   if (state.type === 'error') {
     return (
-      <div className="rounded-xl border border-red-900 bg-red-950 p-6 text-sm text-red-300">
+      <div className="rounded-lg border border-red-900/60 bg-[--danger-subtle] p-5 text-sm text-red-400">
         {state.message}
       </div>
     )
   }
 
   return (
-    <article className="prose prose-invert prose-neutral max-w-none">
+    <article className="prose prose-invert prose-neutral max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-[--text-secondary] prose-a:text-[--accent]">
       <ReactMarkdown>{state.markdown}</ReactMarkdown>
     </article>
   )
