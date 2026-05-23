@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ACCOUNT="${ACCOUNT:-agent-wallet}"
-HANDLE="${HANDLE:-ai-crypto-analyst}"
-GITHUB_URL="${GITHUB_URL:-https://github.com/vara-content-agent}"
+HANDLE="${HANDLE:-tella-ai}"
+GITHUB_URL="${GITHUB_URL:-https://github.com/Officialhomie/tella}"
 AGENT_NETWORK_PID="0x19f27f4c906a5ac230be82d907850d44c7a7fff1b4c6903f62e78e09e0b353f3"
 AGENT_NETWORK_IDL="${AGENT_NETWORK_IDL:-./agents_network_client.idl}"
 
