@@ -56,24 +56,24 @@ export default function HomePage() {
   return (
     <main className="flex-1" ref={pageRef as React.RefObject<HTMLElement>}>
       {/* ── Hero ── */}
-      <section className="border-b border-[--border] px-4 pb-14 pt-14 sm:pb-20 sm:pt-24">
+      <section className="border-b border-(--border) px-4 pb-14 pt-14 sm:pb-20 sm:pt-24">
         <div className="mx-auto max-w-5xl">
 
           {/* Terminal prompt — signature moment */}
           <div
-            className="mb-6 flex max-w-full items-center gap-2 overflow-hidden rounded border border-[--border-strong] bg-[--surface] px-4 py-2 font-mono text-xs text-[--text-secondary] w-fit"
+            className="mb-6 flex max-w-full items-center gap-2 overflow-hidden rounded border border-(--border-strong) bg-(--surface) px-4 py-2 font-mono text-xs text-(--text-secondary) w-fit"
             data-reveal
           >
-            <span className="shrink-0 text-[--accent]">$</span>
+            <span className="shrink-0 text-(--accent)">$</span>
             <span className="shrink-0">tella</span>
-            <span className="hidden shrink-0 text-[--text-muted] sm:inline">--run</span>
-            <span className="truncate text-[--text-primary]">generate-digest</span>
-            <span className="shrink-0 inline-block h-3 w-1.5 bg-[--accent] animate-[blink_1s_step-end_infinite]" />
+            <span className="hidden shrink-0 text-(--text-muted) sm:inline">--run</span>
+            <span className="truncate text-(--text-primary)">generate-digest</span>
+            <span className="shrink-0 inline-block h-3 w-1.5 bg-(--accent) animate-[blink_1s_step-end_infinite]" />
           </div>
 
           {/* Fluid headline — clamp scales from 32px → 60px */}
           <h1
-            className="mb-5 max-w-2xl font-mono font-bold leading-[1.08] tracking-tight text-[--text-primary]"
+            className="mb-5 max-w-2xl font-mono font-bold leading-[1.08] tracking-tight text-(--text-primary)"
             style={{ fontSize: 'clamp(2rem, 5.5vw, 3.75rem)' }}
             data-reveal
           >
@@ -81,11 +81,11 @@ export default function HomePage() {
             <br />
             Intelligence.
             <br />
-            <span className="text-[--accent]">Gated on-chain.</span>
+            <span className="text-(--accent)">Gated on-chain.</span>
           </h1>
 
           <p
-            className="mb-8 max-w-md text-sm leading-relaxed text-[--text-secondary] sm:text-base"
+            className="mb-8 max-w-md text-sm leading-relaxed text-(--text-secondary) sm:text-base"
             data-reveal
           >
             Daily AI-generated digests and deep-dives on artificial intelligence and crypto.
@@ -99,13 +99,13 @@ export default function HomePage() {
           >
             <Link
               href="/browse"
-              className="flex min-h-[48px] items-center justify-center rounded-lg bg-[--accent] px-7 text-sm font-semibold text-black transition-all duration-[150ms] hover:bg-[--accent-dim] hover:-translate-y-px hover:shadow-[var(--shadow-glow)] sm:min-h-[42px]"
+              className="flex min-h-[48px] items-center justify-center rounded-lg bg-(--accent) px-7 text-sm font-semibold text-black transition-all duration-[150ms] hover:bg-(--accent-dim) hover:-translate-y-px hover:shadow-[var(--shadow-glow)] sm:min-h-[42px]"
             >
               Browse Content
             </Link>
             <Link
               href="/creator"
-              className="flex min-h-[48px] items-center justify-center rounded-lg border border-[--border-strong] px-7 text-sm font-semibold text-[--text-secondary] transition-colors duration-[150ms] hover:border-[--text-muted] hover:text-[--text-primary] sm:min-h-[42px]"
+              className="flex min-h-[48px] items-center justify-center rounded-lg border border-(--border-strong) px-7 text-sm font-semibold text-(--text-secondary) transition-colors duration-[150ms] hover:border-(--text-muted) hover:text-(--text-primary) sm:min-h-[42px]"
             >
               Publish Content
             </Link>
@@ -116,7 +116,7 @@ export default function HomePage() {
       {/* ── Features ── */}
       <section className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <div
-          className="grid grid-cols-1 divide-y divide-[--border] sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+          className="grid grid-cols-1 divide-y divide-(--border) sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           data-reveal-stagger
         >
           {features.map((item) => (
@@ -124,8 +124,8 @@ export default function HomePage() {
               key={item.label}
               className="py-7 first:pt-0 last:pb-0 sm:px-8 sm:py-0 sm:first:pl-0 sm:last:pr-0"
             >
-              <div className="mb-4 flex h-8 w-8 items-center justify-center rounded border border-[--border-strong] bg-[--surface]">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="text-[--accent]">
+              <div className="mb-4 flex h-8 w-8 items-center justify-center rounded border border-(--border-strong) bg-(--surface)">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="text-(--accent)">
                   <path
                     d={item.icon}
                     stroke="currentColor"
@@ -135,8 +135,8 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <p className="mb-2 font-semibold text-[--text-primary]">{item.label}</p>
-              <p className="text-sm leading-relaxed text-[--text-secondary]">{item.desc}</p>
+              <p className="mb-2 font-semibold text-(--text-primary)">{item.label}</p>
+              <p className="text-sm leading-relaxed text-(--text-secondary)">{item.desc}</p>
             </div>
           ))}
         </div>
