@@ -5,7 +5,7 @@ node_modules/
 dist/
 .next/
 out/
-contracts/content-agent/target/
+contracts/tella/target/
 
 # Environment & secrets
 .env
