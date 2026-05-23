@@ -9,25 +9,25 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const base =
   'inline-flex items-center justify-center font-semibold select-none whitespace-nowrap ' +
-  'transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--accent] ' +
+  'transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) ' +
   'disabled:pointer-events-none disabled:opacity-50'
 
 const variants = {
   primary: [
-    'bg-[--accent] text-black',
-    'hover:bg-[--accent-dim] hover:-translate-y-px',
+    'bg-(--accent) text-black',
+    'hover:bg-(--accent-dim) hover:-translate-y-px',
     'hover:shadow-[0_4px_16px_rgba(34,197,94,0.35)]',
   ].join(' '),
   ghost: [
-    'bg-[--surface-raised] text-[--text-primary] border border-[--border-strong]',
-    'hover:border-[--text-muted]',
+    'bg-(--surface-raised) text-(--text-primary) border border-(--border-strong)',
+    'hover:border-(--text-muted)',
   ].join(' '),
   outline: [
-    'border border-[--border-strong] text-[--text-secondary] bg-transparent',
-    'hover:text-[--text-primary] hover:border-[--text-muted]',
+    'border border-(--border-strong) text-(--text-secondary) bg-transparent',
+    'hover:text-(--text-primary) hover:border-(--text-muted)',
   ].join(' '),
   danger: [
-    'bg-[--danger-subtle] border border-red-900/60 text-red-400',
+    'bg-(--danger-subtle) border border-red-900/60 text-red-400',
     'hover:border-red-700/60 hover:text-red-300',
   ].join(' '),
 }
