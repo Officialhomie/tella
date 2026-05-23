@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════
-   DESIGN SYSTEM — Vara Content Agent
+   DESIGN SYSTEM — Tella
    Aesthetic: Retro-Digital (terminal-native, developer tool)
    ═══════════════════════════════════════ */
 
@@ -77,6 +77,10 @@
 /* ── Base ──────────────────────────── */
 html {
   scroll-behavior: smooth;
+}
+
+html, body {
+  overflow-x: hidden;
 }
 
 body {
