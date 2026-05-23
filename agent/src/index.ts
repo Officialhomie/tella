@@ -92,7 +92,7 @@ async function main(): Promise<void> {
     } catch (err) {
       console.error('[agent] Digest pipeline failed:', err)
     }
-  })
+  }, { timezone: 'UTC' })
 
   // Start event listener (non-blocking)
   if (!DRY_RUN) {
