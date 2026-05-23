@@ -49,7 +49,8 @@ export async function generateNewsDigest(): Promise<GeneratedContent> {
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 4096,
-    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }] as any,
     system: PERSONA,
     messages: [
       {
@@ -62,7 +63,7 @@ export async function generateNewsDigest(): Promise<GeneratedContent> {
   })
 
   // Extract final text block (after tool use)
-  const textBlock = response.content.findLast((b) => b.type === 'text')
+  const textBlock = response.content.findLast((b: { type: string }) => b.type === 'text')
   if (!textBlock || textBlock.type !== 'text') {
     throw new Error('No text block in Claude response')
   }
@@ -79,7 +80,8 @@ export async function generateDeepDive(topic: string): Promise<GeneratedContent>
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 6000,
-    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }] as any,
     system: PERSONA,
     messages: [
       {
@@ -91,7 +93,7 @@ export async function generateDeepDive(topic: string): Promise<GeneratedContent>
     ],
   })
 
-  const textBlock = response.content.findLast((b) => b.type === 'text')
+  const textBlock = response.content.findLast((b: { type: string }) => b.type === 'text')
   if (!textBlock || textBlock.type !== 'text') {
     throw new Error('No text block in Claude response')
   }
