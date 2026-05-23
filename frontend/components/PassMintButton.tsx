@@ -33,7 +33,7 @@ export function PassMintButton({ contentId, price, walletAddress, onSuccess }: P
 
   if (status === 'success') {
     return (
-      <div className="flex items-center justify-center gap-2 rounded-lg border border-[--accent-dim]/40 bg-[--accent-subtle] px-4 py-3 text-sm font-medium text-[--accent]">
+      <div className="flex items-center justify-center gap-2 rounded-lg border border-(--accent-dim)/40 bg-(--accent-subtle) px-4 py-3 text-sm font-medium text-(--accent)">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
           <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
