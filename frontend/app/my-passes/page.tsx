@@ -35,10 +35,17 @@ export default function MyPassesPage() {
   }, [wallet])
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
-      <div className="mb-10 border-b border-[--border] pb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-[--text-primary]">My Passes</h1>
-        <p className="mt-1.5 text-[--text-secondary]">Your on-chain content access passes</p>
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+        <h1
+          className="font-bold tracking-tight text-[--text-primary]"
+          style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
+        >
+          My Passes
+        </h1>
+        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
+          Your on-chain content access passes
+        </p>
       </div>
 
       {!wallet && (
@@ -51,7 +58,7 @@ export default function MyPassesPage() {
       {wallet && loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-lg bg-[--surface]" />
+            <div key={i} className="h-16 skeleton rounded-lg" />
           ))}
         </div>
       )}
@@ -77,17 +84,20 @@ export default function MyPassesPage() {
             <Link
               key={p.content_id}
               href={`/post/${p.content_id}`}
-              className="group flex items-center justify-between px-5 py-4 transition-colors hover:bg-[--surface-raised]"
+              className="group flex min-h-[60px] items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[--surface-raised] sm:px-5"
             >
-              <div>
-                <p className="font-medium text-[--text-primary]">
+              {/* Title — truncates so badge never gets pushed off */}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-[--text-primary]">
                   {p.contentMeta?.title ?? `Content #${p.content_id}`}
                 </p>
-                <p className="mt-0.5 text-xs text-[--text-muted]">
+                <p className="mt-0.5 font-mono text-xs text-[--text-muted]">
                   Block #{p.minted_at.toLocaleString()}
                 </p>
               </div>
-              <Badge variant="green">Access granted</Badge>
+              <div className="shrink-0">
+                <Badge variant="green">Access granted</Badge>
+              </div>
             </Link>
           ))}
         </div>
