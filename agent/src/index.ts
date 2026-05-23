@@ -1,5 +1,5 @@
 /**
- * Vara Content Agent — AI x Crypto News Analyst
+ * Tella — AI x Crypto News Analyst
  *
  * Runs two concurrent loops:
  * 1. Cron: generates + publishes a new digest daily at 09:00 UTC
@@ -51,7 +51,7 @@ async function runDigestPipeline(): Promise<void> {
 
   const cid = await pinContent(ciphertext, {
     name: article.title,
-    keyvalues: { type: 'newsletter', agent: 'ai-crypto-analyst' },
+    keyvalues: { type: 'newsletter', agent: 'tella-ai' },
   })
   console.log(`[agent] Pinned to IPFS: ${cid}`)
 
@@ -72,7 +72,7 @@ async function runDigestPipeline(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  console.log('[agent] Vara Content Agent starting...')
+  console.log('[agent] Tella agent starting...')
   console.log(`[agent] Network: ${process.env.NETWORK ?? 'testnet'}`)
   console.log(`[agent] Dry run: ${DRY_RUN}`)
   console.log(`[agent] Run once: ${RUN_ONCE}`)
