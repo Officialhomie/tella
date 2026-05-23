@@ -30,12 +30,12 @@ export function WalletConnect({ onConnect, connected }: Props) {
 
   if (connected) {
     return (
-      <div className="flex min-h-[36px] max-w-[160px] items-center gap-1.5 rounded-lg border border-[--border-strong] bg-[--surface] px-2.5 py-1.5 sm:max-w-none sm:px-3">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[--accent]" />
-        <span className="truncate font-mono text-xs text-[--text-secondary]">
+      <div className="flex min-h-[36px] max-w-[160px] items-center gap-1.5 rounded-lg border border-(--border-strong) bg-(--surface) px-2.5 py-1.5 sm:max-w-none sm:px-3">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent)" />
+        <span className="truncate font-mono text-xs text-(--text-secondary)">
           {connected.address.slice(0, 6)}…{connected.address.slice(-4)}
         </span>
-        <span className="hidden text-xs text-[--text-muted] sm:inline">
+        <span className="hidden text-xs text-(--text-muted) sm:inline">
           ({connected.meta.name})
         </span>
       </div>
@@ -46,7 +46,7 @@ export function WalletConnect({ onConnect, connected }: Props) {
     <div>
       {accounts.length > 1 ? (
         <select
-          className="h-10 max-w-[140px] rounded-lg border border-[--border-strong] bg-[--surface] px-3 text-sm text-[--text-primary] focus:outline-none focus:border-[--accent]/50 sm:max-w-none"
+          className="h-10 max-w-[140px] rounded-lg border border-(--border-strong) bg-(--surface) px-3 text-sm text-(--text-primary) focus:outline-none focus:border-(--accent)/50 sm:max-w-none"
           onChange={(e) => {
             const account = accounts.find((a) => a.address === e.target.value)
             if (account) onConnect(account)
