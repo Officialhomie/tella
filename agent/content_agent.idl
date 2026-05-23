@@ -1,7 +1,7 @@
 
 !@sails: 1.0.0
 
-service Content@0x6e6c0e38efa38a43 {
+service Content@0x7d0d4dfb0f73a29c {
     events {
         AccessKeyRequested {
             content_id: u64,
@@ -42,6 +42,7 @@ service Content@0x6e6c0e38efa38a43 {
             creator: ActorId,
             title: String,
             description: String,
+            ipfs_cid: String,
             price: u128,
             pass_count: u32,
             content_type: ContentType,
@@ -131,7 +132,7 @@ program ContentAgent {
         New();
     }
     services {
-        Content@0x6e6c0e38efa38a43,
+        Content@0x7d0d4dfb0f73a29c,
         Pass@0x7a087345765a3790,
         Treasury@0x47a8dd7c5aa52256,
     }
