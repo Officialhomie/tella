@@ -19,3 +19,4 @@ contracts/tella/target/
 
 # Nested git artifacts (monorepo root only)
 **/.git/
+.vercel
