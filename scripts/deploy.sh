@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CONTRACT_DIR="$ROOT/contracts/content-agent"
-AGENT_IDL="$ROOT/agent/content_agent.idl"
+CONTRACT_DIR="$ROOT/contracts/tella"
+AGENT_IDL="$ROOT/agent/tella.idl"
 NETWORK="${NETWORK:-testnet}"
 ACCOUNT="${ACCOUNT:-agent-wallet}"
 
@@ -11,8 +11,8 @@ echo "==> Building WASM binary..."
 cd "$CONTRACT_DIR"
 cargo build --release 2>&1
 
-WASM="$CONTRACT_DIR/target/wasm32-gear/release/content_agent.opt.wasm"
-IDL="$CONTRACT_DIR/target/wasm32-gear/release/content_agent.idl"
+WASM="$CONTRACT_DIR/target/wasm32-gear/release/tella.opt.wasm"
+IDL="$CONTRACT_DIR/target/wasm32-gear/release/tella.idl"
 if [ ! -f "$WASM" ]; then
   echo "ERROR: WASM not found at $WASM"
   exit 1
@@ -49,8 +49,9 @@ if [ -n "$PROGRAM_ID" ]; then
     fi
   done
   if ! grep -q '^CONTRACT_IDL=' "$ROOT/agent/.env.local" 2>/dev/null; then
-    echo "CONTRACT_IDL=./content_agent.idl" >> "$ROOT/agent/.env.local"
+    echo "CONTRACT_IDL=./tella.idl" >> "$ROOT/agent/.env.local"
   fi
+  cp "$AGENT_IDL" "$ROOT/frontend/lib/tella.idl"
   echo "==> Written PROGRAM_ID to agent/.env.local and frontend/.env.local"
 else
   echo "WARNING: Could not parse program_id — set PROGRAM_ID manually"
