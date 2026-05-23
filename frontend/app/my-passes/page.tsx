@@ -4,8 +4,9 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { getUserPasses, getContent, type ContentMeta, type PassInfo } from '@/lib/contract'
-import { WalletConnect } from '@/components/WalletConnect'
-import { type InjectedAccountWithMeta } from '@/lib/wallet'
+import { useWallet } from '@/app/providers'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Badge } from '@/components/ui/Badge'
 import Link from 'next/link'
 
 interface PassWithMeta extends PassInfo {
@@ -13,7 +14,7 @@ interface PassWithMeta extends PassInfo {
 }
 
 export default function MyPassesPage() {
-  const [wallet, setWallet] = useState<InjectedAccountWithMeta | null>(null)
+  const { wallet } = useWallet()
   const [passes, setPasses] = useState<PassWithMeta[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -35,55 +36,58 @@ export default function MyPassesPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
-      <div className="mb-6 flex items-center justify-between">
-        <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-300">← Home</Link>
-        <WalletConnect connected={wallet} onConnect={setWallet} />
+      <div className="mb-10 border-b border-[--border] pb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-[--text-primary]">My Passes</h1>
+        <p className="mt-1.5 text-[--text-secondary]">Your on-chain content access passes</p>
       </div>
 
-      <h1 className="mb-8 text-3xl font-bold text-neutral-100">My Passes</h1>
-
       {!wallet && (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-8 text-center text-neutral-500">
-          Connect your wallet to see your passes.
-        </div>
+        <EmptyState
+          title="Connect your wallet to view passes"
+          description="Use the Connect Wallet button in the top navigation"
+        />
       )}
 
       {wallet && loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-neutral-800" />
+            <div key={i} className="h-16 animate-pulse rounded-lg bg-[--surface]" />
           ))}
         </div>
       )}
 
       {wallet && !loading && passes.length === 0 && (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-8 text-center">
-          <p className="text-neutral-500">No passes yet.</p>
-          <Link href="/browse" className="mt-2 block text-sm text-violet-400 hover:text-violet-300">
-            Browse content →
-          </Link>
-        </div>
+        <EmptyState
+          title="No passes yet."
+          description="Buy access to an article to get your first pass."
+          action={
+            <Link
+              href="/browse"
+              className="text-sm text-[--accent] transition-colors hover:text-[--accent-dim]"
+            >
+              Browse content
+            </Link>
+          }
+        />
       )}
 
       {passes.length > 0 && (
-        <div className="space-y-3">
+        <div className="divide-y divide-[--border] rounded-lg border border-[--border] bg-[--surface]">
           {passes.map((p) => (
             <Link
               key={p.content_id}
               href={`/post/${p.content_id}`}
-              className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-4 hover:border-neutral-600"
+              className="group flex items-center justify-between px-5 py-4 transition-colors hover:bg-[--surface-raised]"
             >
               <div>
-                <p className="font-medium text-neutral-200">
+                <p className="font-medium text-[--text-primary]">
                   {p.contentMeta?.title ?? `Content #${p.content_id}`}
                 </p>
-                <p className="mt-0.5 text-xs text-neutral-500">
-                  Minted at block #{p.minted_at.toLocaleString()}
+                <p className="mt-0.5 text-xs text-[--text-muted]">
+                  Block #{p.minted_at.toLocaleString()}
                 </p>
               </div>
-              <span className="rounded-full border border-green-800 bg-green-950 px-3 py-1 text-xs text-green-400">
-                Access granted
-              </span>
+              <Badge variant="green">Access granted</Badge>
             </Link>
           ))}
         </div>
