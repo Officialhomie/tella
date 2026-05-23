@@ -20,12 +20,15 @@ export default function BrowsePage() {
   }, [])
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12">
-      <div className="mb-10 border-b border-[--border] pb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-[--text-primary]">
+    <main className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
+      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+        <h1
+          className="font-bold tracking-tight text-[--text-primary]"
+          style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
+        >
           Latest Intelligence
         </h1>
-        <p className="mt-1.5 text-[--text-secondary]">
+        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
           AI-generated dispatches on the AI x Crypto frontier
         </p>
       </div>
@@ -33,13 +36,13 @@ export default function BrowsePage() {
       {loading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-52 animate-pulse rounded-lg bg-[--surface]" />
+            <div key={i} className="h-52 skeleton rounded-lg" />
           ))}
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-900/60 bg-[--danger-subtle] p-5 text-sm text-red-400">
+        <div className="rounded-lg border border-red-900/60 bg-[--danger-subtle] p-4 text-sm text-red-400 sm:p-5">
           {error}
         </div>
       )}
