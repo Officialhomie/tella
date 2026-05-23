@@ -1,7 +1,7 @@
 {
-  "name": "vara-content-agent",
+  "name": "tella-agent",
   "version": "0.1.0",
-  "description": "AI x Crypto News Agent — publishes gated content on Vara Network",
+  "description": "Tella — AI x Crypto intelligence agent on Vara Network",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
