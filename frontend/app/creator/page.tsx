@@ -4,16 +4,16 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { publishContent, getCreatorRevenue, claimRevenue } from '@/lib/contract'
-import { formatVaraFromUnits } from '@/lib/amount'
 import { generateKey, encodeKeyString } from '@/lib/encryption-browser'
 import { useWallet } from '@/app/providers'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 const inputClass =
-  'w-full rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-2 text-sm text-[--text-primary] placeholder-[--text-muted] transition-colors focus:border-[--accent]/50 focus:outline-none'
+  'w-full rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-2.5 text-sm text-[--text-primary] placeholder-[--text-muted] transition-colors focus:border-[--accent]/50 focus:outline-none'
 
-const labelClass = 'mb-1.5 block text-xs font-medium uppercase tracking-widest text-[--text-secondary]'
+const labelClass =
+  'mb-1.5 block text-xs font-medium uppercase tracking-widest text-[--text-secondary]'
 
 export default function CreatorPage() {
   const { wallet } = useWallet()
@@ -55,7 +55,8 @@ export default function CreatorPage() {
     if (!wallet) return
     try {
       const amount = await getCreatorRevenue(wallet.address)
-      setRevenue(`${formatVaraFromUnits(amount)} VARA pending`)
+      const vara = (Number(BigInt(amount)) / 1e12).toFixed(4)
+      setRevenue(`${vara} VARA pending`)
     } catch (err) {
       setStatus('Error: ' + (err instanceof Error ? err.message : String(err)))
     }
@@ -74,12 +75,17 @@ export default function CreatorPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
-      <div className="mb-10 border-b border-[--border] pb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-[--text-primary]">
+    <main className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
+      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+        <h1
+          className="font-bold tracking-tight text-[--text-primary]"
+          style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
+        >
           Creator Dashboard
         </h1>
-        <p className="mt-1.5 text-[--text-secondary]">Publish gated content on Vara Network</p>
+        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
+          Publish gated content with Tella on Vara Network
+        </p>
       </div>
 
       {!wallet && (
@@ -90,9 +96,10 @@ export default function CreatorPage() {
       )}
 
       {wallet && (
-        <div className="space-y-6">
-          <section className="rounded-lg border border-[--border] bg-[--surface] p-6">
-            <h2 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[--text-secondary]">
+        <div className="space-y-5">
+          {/* Publish form */}
+          <section className="rounded-lg border border-[--border] bg-[--surface] p-5 sm:p-6">
+            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[--text-secondary]">
               Publish Content
             </h2>
             <form onSubmit={handlePublish} className="space-y-4">
@@ -112,7 +119,7 @@ export default function CreatorPage() {
                   required
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  rows={2}
+                  rows={3}
                   className={inputClass}
                 />
               </div>
@@ -122,11 +129,13 @@ export default function CreatorPage() {
                   required
                   value={form.ipfsCid}
                   onChange={(e) => setForm({ ...form, ipfsCid: e.target.value })}
-                  className={`${inputClass} font-mono`}
+                  className={`${inputClass} font-mono text-xs`}
                   placeholder="bafybeig..."
                 />
               </div>
-              <div className="flex gap-3">
+
+              {/* Price + Type — stacked on mobile, side-by-side on sm+ */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:gap-3">
                 <div className="flex-1">
                   <label className={labelClass}>Price (VARA)</label>
                   <input
@@ -153,6 +162,7 @@ export default function CreatorPage() {
                   </select>
                 </div>
               </div>
+
               <Button type="submit" fullWidth>
                 Publish
               </Button>
@@ -162,17 +172,20 @@ export default function CreatorPage() {
                 className={`mt-3 text-sm ${
                   status.startsWith('Error') ? 'text-red-400' : 'text-[--text-secondary]'
                 }`}
+                role="alert"
               >
                 {status}
               </p>
             )}
           </section>
 
-          <section className="rounded-lg border border-[--border] bg-[--surface] p-6">
-            <h2 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[--text-secondary]">
+          {/* Revenue */}
+          <section className="rounded-lg border border-[--border] bg-[--surface] p-5 sm:p-6">
+            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[--text-secondary]">
               Revenue
             </h2>
-            <div className="flex items-center gap-3">
+            {/* Wraps on mobile if revenue string is long */}
+            <div className="flex flex-wrap items-center gap-3">
               <Button variant="outline" size="sm" onClick={handleCheckRevenue}>
                 Check Balance
               </Button>
