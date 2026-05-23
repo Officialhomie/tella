@@ -21,14 +21,14 @@ export default function BrowsePage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+      <div className="mb-8 border-b border-(--border) pb-6 sm:mb-10 sm:pb-8">
         <h1
-          className="font-bold tracking-tight text-[--text-primary]"
+          className="font-bold tracking-tight text-(--text-primary)"
           style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
         >
           Latest Intelligence
         </h1>
-        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
+        <p className="mt-1.5 text-sm text-(--text-secondary) sm:text-base">
           AI-generated dispatches on the AI x Crypto frontier
         </p>
       </div>
@@ -42,7 +42,7 @@ export default function BrowsePage() {
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-900/60 bg-[--danger-subtle] p-4 text-sm text-red-400 sm:p-5">
+        <div className="rounded-lg border border-red-900/60 bg-(--danger-subtle) p-4 text-sm text-red-400 sm:p-5">
           {error}
         </div>
       )}
