@@ -9,14 +9,14 @@ const exec = promisify(execFile)
 
 const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID ?? ''
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK ?? 'testnet'
-const IDL_PATH = path.join(process.cwd(), 'lib/content_agent.idl')
+const IDL_PATH = path.join(process.cwd(), 'lib/tella.idl')
 
 export async function POST(req: Request) {
   if (!PROGRAM_ID) {
     return Response.json({ error: 'NEXT_PUBLIC_PROGRAM_ID is not set' }, { status: 500 })
   }
   if (!existsSync(IDL_PATH)) {
-    return Response.json({ error: 'content_agent.idl missing in frontend/lib' }, { status: 500 })
+    return Response.json({ error: 'tella.idl missing in frontend/lib' }, { status: 500 })
   }
 
   let body: { method?: string; args?: unknown[]; origin?: string }
