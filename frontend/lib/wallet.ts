@@ -2,7 +2,7 @@
 
 export type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types'
 
-const APP_NAME = 'Vara Content Agent'
+const APP_NAME = 'Tella'
 
 export async function connectWallet() {
   if (typeof window === 'undefined') throw new Error('Browser only')
