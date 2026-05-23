@@ -1,0 +1,6 @@
+agent/node_modules
+frontend/node_modules
+contracts/tella/target
+**/target
+.git
+agent/dist
