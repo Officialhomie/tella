@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
 import { checkAccess, requestAccessKey } from '@/lib/contract'
+import { ArticleBody } from '@/components/ArticleBody'
 import { decrypt, splitKeyString } from '@/lib/encryption'
 import { PassMintButton } from './PassMintButton'
 import { EmptyState } from './ui/EmptyState'
@@ -28,6 +28,7 @@ export function ContentViewer({
   contentId,
   ipfsCid,
   price,
+  title,
   walletAddress,
 }: Props) {
   const [state, setState] = useState<ViewState>({ type: 'loading' })
@@ -76,8 +77,8 @@ export function ContentViewer({
   if (state.type === 'loading' || state.type === 'unlocking') {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[--border-strong] border-t-[--accent]" />
-        <p className="text-sm text-[--text-secondary]">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-(--border-strong) border-t-(--accent)" />
+        <p className="text-sm text-(--text-secondary)">
           {state.type === 'loading' ? 'Checking access…' : 'Decrypting content…'}
         </p>
       </div>
@@ -95,8 +96,8 @@ export function ContentViewer({
 
   if (state.type === 'no_access') {
     return (
-      <div className="rounded-lg border border-[--border] bg-[--surface] p-8">
-        <p className="mb-6 text-center text-sm text-[--text-secondary]">
+      <div className="rounded-lg border border-(--border) bg-(--surface) p-8">
+        <p className="mb-6 text-center text-sm text-(--text-secondary)">
           Access pass required to read this content.
         </p>
         <div className="mx-auto max-w-sm">
@@ -107,7 +108,7 @@ export function ContentViewer({
             onSuccess={unlock}
           />
         </div>
-        <p className="mt-4 text-center text-xs text-[--text-muted]">
+        <p className="mt-4 text-center text-xs text-(--text-muted)">
           One-time purchase. Access recorded on-chain, forever.
         </p>
       </div>
@@ -116,15 +117,13 @@ export function ContentViewer({
 
   if (state.type === 'error') {
     return (
-      <div className="rounded-lg border border-red-900/60 bg-[--danger-subtle] p-5 text-sm text-red-400">
+      <div className="rounded-lg border border-red-900/60 bg-(--danger-subtle) p-5 text-sm text-red-400">
         {state.message}
       </div>
     )
   }
 
   return (
-    <article className="prose prose-invert prose-neutral max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-[--text-secondary] prose-a:text-[--accent]">
-      <ReactMarkdown>{state.markdown}</ReactMarkdown>
-    </article>
+    <ArticleBody markdown={state.markdown} title={title} />
   )
 }
