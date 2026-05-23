@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 const inputClass =
-  'w-full rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-2.5 text-sm text-[--text-primary] placeholder-[--text-muted] transition-colors focus:border-[--accent]/50 focus:outline-none'
+  'w-full rounded-lg border border-(--border-strong) bg-(--surface) px-3 py-2.5 text-sm text-(--text-primary) placeholder-(--text-muted) transition-colors focus:border-(--accent)/50 focus:outline-none'
 
 const labelClass =
-  'mb-1.5 block text-xs font-medium uppercase tracking-widest text-[--text-secondary]'
+  'mb-1.5 block text-xs font-medium uppercase tracking-widest text-(--text-secondary)'
 
 export default function CreatorPage() {
   const { wallet } = useWallet()
@@ -76,14 +76,14 @@ export default function CreatorPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
-      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+      <div className="mb-8 border-b border-(--border) pb-6 sm:mb-10 sm:pb-8">
         <h1
-          className="font-bold tracking-tight text-[--text-primary]"
+          className="font-bold tracking-tight text-(--text-primary)"
           style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
         >
           Creator Dashboard
         </h1>
-        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
+        <p className="mt-1.5 text-sm text-(--text-secondary) sm:text-base">
           Publish gated content with Tella on Vara Network
         </p>
       </div>
@@ -98,8 +98,8 @@ export default function CreatorPage() {
       {wallet && (
         <div className="space-y-5">
           {/* Publish form */}
-          <section className="rounded-lg border border-[--border] bg-[--surface] p-5 sm:p-6">
-            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[--text-secondary]">
+          <section className="rounded-lg border border-(--border) bg-(--surface) p-5 sm:p-6">
+            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-(--text-secondary)">
               Publish Content
             </h2>
             <form onSubmit={handlePublish} className="space-y-4">
@@ -170,7 +170,7 @@ export default function CreatorPage() {
             {status && (
               <p
                 className={`mt-3 text-sm ${
-                  status.startsWith('Error') ? 'text-red-400' : 'text-[--text-secondary]'
+                  status.startsWith('Error') ? 'text-red-400' : 'text-(--text-secondary)'
                 }`}
                 role="alert"
               >
@@ -180,8 +180,8 @@ export default function CreatorPage() {
           </section>
 
           {/* Revenue */}
-          <section className="rounded-lg border border-[--border] bg-[--surface] p-5 sm:p-6">
-            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-[--text-secondary]">
+          <section className="rounded-lg border border-(--border) bg-(--surface) p-5 sm:p-6">
+            <h2 className="mb-5 text-xs font-semibold uppercase tracking-widest text-(--text-secondary)">
               Revenue
             </h2>
             {/* Wraps on mobile if revenue string is long */}
@@ -191,7 +191,7 @@ export default function CreatorPage() {
               </Button>
               {revenue && (
                 <>
-                  <span className="font-mono text-sm font-semibold text-[--accent]">{revenue}</span>
+                  <span className="font-mono text-sm font-semibold text-(--accent)">{revenue}</span>
                   <Button variant="primary" size="sm" onClick={handleClaim}>
                     Claim
                   </Button>
