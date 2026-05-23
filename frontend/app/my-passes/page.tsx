@@ -36,14 +36,14 @@ export default function MyPassesPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="mb-8 border-b border-[--border] pb-6 sm:mb-10 sm:pb-8">
+      <div className="mb-8 border-b border-(--border) pb-6 sm:mb-10 sm:pb-8">
         <h1
-          className="font-bold tracking-tight text-[--text-primary]"
+          className="font-bold tracking-tight text-(--text-primary)"
           style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)' }}
         >
           My Passes
         </h1>
-        <p className="mt-1.5 text-sm text-[--text-secondary] sm:text-base">
+        <p className="mt-1.5 text-sm text-(--text-secondary) sm:text-base">
           Your on-chain content access passes
         </p>
       </div>
@@ -70,7 +70,7 @@ export default function MyPassesPage() {
           action={
             <Link
               href="/browse"
-              className="text-sm text-[--accent] transition-colors hover:text-[--accent-dim]"
+              className="text-sm text-(--accent) transition-colors hover:text-(--accent-dim)"
             >
               Browse content
             </Link>
@@ -79,19 +79,19 @@ export default function MyPassesPage() {
       )}
 
       {passes.length > 0 && (
-        <div className="divide-y divide-[--border] rounded-lg border border-[--border] bg-[--surface]">
+        <div className="divide-y divide-(--border) rounded-lg border border-(--border) bg-(--surface)">
           {passes.map((p) => (
             <Link
               key={p.content_id}
               href={`/post/${p.content_id}`}
-              className="group flex min-h-[60px] items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[--surface-raised] sm:px-5"
+              className="group flex min-h-[60px] items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-(--surface-raised) sm:px-5"
             >
               {/* Title — truncates so badge never gets pushed off */}
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-[--text-primary]">
+                <p className="truncate font-medium text-(--text-primary)">
                   {p.contentMeta?.title ?? `Content #${p.content_id}`}
                 </p>
-                <p className="mt-0.5 font-mono text-xs text-[--text-muted]">
+                <p className="mt-0.5 font-mono text-xs text-(--text-muted)">
                   Block #{p.minted_at.toLocaleString()}
                 </p>
               </div>
