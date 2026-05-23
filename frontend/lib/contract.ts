@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * Contract interaction layer for the ContentAgent Sails program.
+ * Contract interaction layer for the Tella (ContentAgent) Sails program.
  * Uses proper SCALE encoding via lib/scale.ts.
  */
 
