@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { connectWallet, type InjectedAccountWithMeta } from '@/lib/wallet'
+import { Button } from './ui/Button'
 
 interface Props {
   onConnect: (account: InjectedAccountWithMeta) => void
@@ -29,12 +30,12 @@ export function WalletConnect({ onConnect, connected }: Props) {
 
   if (connected) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm">
-        <span className="h-2 w-2 rounded-full bg-green-400" />
-        <span className="font-mono text-neutral-300">
+      <div className="flex items-center gap-2 rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-1.5">
+        <span className="h-1.5 w-1.5 rounded-full bg-[--accent]" />
+        <span className="font-mono text-xs text-[--text-secondary]">
           {connected.address.slice(0, 6)}…{connected.address.slice(-4)}
         </span>
-        <span className="text-neutral-500">({connected.meta.name})</span>
+        <span className="text-xs text-[--text-muted]">({connected.meta.name})</span>
       </div>
     )
   }
@@ -43,7 +44,7 @@ export function WalletConnect({ onConnect, connected }: Props) {
     <div>
       {accounts.length > 1 ? (
         <select
-          className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm text-neutral-200"
+          className="rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-1.5 text-sm text-[--text-primary] focus:outline-none focus:border-[--accent]/50"
           onChange={(e) => {
             const account = accounts.find((a) => a.address === e.target.value)
             if (account) onConnect(account)
@@ -60,13 +61,9 @@ export function WalletConnect({ onConnect, connected }: Props) {
           ))}
         </select>
       ) : (
-        <button
-          onClick={handleConnect}
-          disabled={loading}
-          className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
+        <Button variant="ghost" size="sm" onClick={handleConnect} disabled={loading}>
           {loading ? 'Connecting…' : 'Connect Wallet'}
-        </button>
+        </Button>
       )}
       {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
     </div>
