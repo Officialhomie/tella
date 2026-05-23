@@ -18,7 +18,7 @@ export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-[--z-dropdown] border-b border-[--border] bg-[--bg]">
+    <header className="sticky top-0 z-(--z-dropdown) border-b border-(--border) bg-(--bg)">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         {/* Logo */}
         <Link
@@ -26,13 +26,13 @@ export function Nav() {
           className="flex items-center gap-2.5 min-h-[44px]"
           onClick={() => setMenuOpen(false)}
         >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[--accent]">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-(--accent)">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M6 1L11 3.5V8.5L6 11L1 8.5V3.5L6 1Z" stroke="black" strokeWidth="1.5" strokeLinejoin="round"/>
               <circle cx="6" cy="6" r="1.5" fill="black"/>
             </svg>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-[--text-primary]">
+          <span className="text-sm font-semibold tracking-tight text-(--text-primary)">
             Tella
           </span>
         </Link>
@@ -45,8 +45,8 @@ export function Nav() {
               href={href}
               className={`flex min-h-[36px] items-center rounded px-3 text-sm font-medium transition-colors ${
                 pathname.startsWith(href)
-                  ? 'bg-[--surface-raised] text-[--text-primary]'
-                  : 'text-[--text-secondary] hover:text-[--text-primary]'
+                  ? 'bg-(--surface-raised) text-(--text-primary)'
+                  : 'text-(--text-secondary) hover:text-(--text-primary)'
               }`}
             >
               {label}
@@ -60,7 +60,7 @@ export function Nav() {
 
           {/* Hamburger — mobile only */}
           <button
-            className="flex h-10 w-10 items-center justify-center rounded border border-[--border-strong] text-[--text-secondary] transition-colors hover:text-[--text-primary] sm:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded border border-(--border-strong) text-(--text-secondary) transition-colors hover:text-(--text-primary) sm:hidden"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
@@ -80,7 +80,7 @@ export function Nav() {
 
       {/* Mobile dropdown */}
       {menuOpen && (
-        <nav className="border-t border-[--border] bg-[--bg] px-4 pb-4 pt-2 sm:hidden">
+        <nav className="border-t border-(--border) bg-(--bg) px-4 pb-4 pt-2 sm:hidden">
           {links.map(({ href, label }) => (
             <Link
               key={href}
@@ -88,8 +88,8 @@ export function Nav() {
               onClick={() => setMenuOpen(false)}
               className={`flex min-h-[48px] items-center rounded px-3 text-sm font-medium transition-colors ${
                 pathname.startsWith(href)
-                  ? 'bg-[--surface-raised] text-[--text-primary]'
-                  : 'text-[--text-secondary] hover:text-[--text-primary]'
+                  ? 'bg-(--surface-raised) text-(--text-primary)'
+                  : 'text-(--text-secondary) hover:text-(--text-primary)'
               }`}
             >
               {label}
