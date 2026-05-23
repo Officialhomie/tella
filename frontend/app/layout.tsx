@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vara Content Agent — AI x Crypto Intelligence",
+  title: "Tella — AI x Crypto Intelligence",
   description: "Gated AI-generated crypto and AI news. Access with a VARA pass.",
+  applicationName: "Tella",
 };
 
 export default function RootLayout({
