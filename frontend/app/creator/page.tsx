@@ -3,14 +3,20 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
-import { WalletConnect } from '@/components/WalletConnect'
 import { publishContent, getCreatorRevenue, claimRevenue } from '@/lib/contract'
+import { formatVaraFromUnits } from '@/lib/amount'
 import { generateKey, encodeKeyString } from '@/lib/encryption-browser'
-import { type InjectedAccountWithMeta } from '@/lib/wallet'
-import Link from 'next/link'
+import { useWallet } from '@/app/providers'
+import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+
+const inputClass =
+  'w-full rounded-lg border border-[--border-strong] bg-[--surface] px-3 py-2 text-sm text-[--text-primary] placeholder-[--text-muted] transition-colors focus:border-[--accent]/50 focus:outline-none'
+
+const labelClass = 'mb-1.5 block text-xs font-medium uppercase tracking-widest text-[--text-secondary]'
 
 export default function CreatorPage() {
-  const [wallet, setWallet] = useState<InjectedAccountWithMeta | null>(null)
+  const { wallet } = useWallet()
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -27,8 +33,6 @@ export default function CreatorPage() {
     setStatus('Publishing...')
     try {
       const priceUnits = (parseFloat(form.price) * 1_000_000_000_000).toFixed(0)
-      // For creator-uploaded content, generate a placeholder key
-      // (in production, creator encrypts content client-side before uploading to IPFS)
       const aesKey = generateKey()
       const keyString = encodeKeyString(aesKey)
 
@@ -49,9 +53,12 @@ export default function CreatorPage() {
 
   async function handleCheckRevenue() {
     if (!wallet) return
-    const amount = await getCreatorRevenue(wallet.address)
-    const vara = (Number(BigInt(amount)) / 1e12).toFixed(4)
-    setRevenue(`${vara} VARA pending`)
+    try {
+      const amount = await getCreatorRevenue(wallet.address)
+      setRevenue(`${formatVaraFromUnits(amount)} VARA pending`)
+    } catch (err) {
+      setStatus('Error: ' + (err instanceof Error ? err.message : String(err)))
+    }
   }
 
   async function handleClaim() {
@@ -68,57 +75,60 @@ export default function CreatorPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      <div className="mb-6 flex items-center justify-between">
-        <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-300">← Home</Link>
-        <WalletConnect connected={wallet} onConnect={setWallet} />
+      <div className="mb-10 border-b border-[--border] pb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-[--text-primary]">
+          Creator Dashboard
+        </h1>
+        <p className="mt-1.5 text-[--text-secondary]">Publish gated content on Vara Network</p>
       </div>
 
-      <h1 className="mb-8 text-3xl font-bold text-neutral-100">Creator Dashboard</h1>
-
       {!wallet && (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-8 text-center text-neutral-500">
-          Connect your wallet to publish content.
-        </div>
+        <EmptyState
+          title="Connect your wallet to publish"
+          description="Use the Connect Wallet button in the top navigation"
+        />
       )}
 
       {wallet && (
-        <div className="space-y-8">
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-neutral-200">Publish Content</h2>
+        <div className="space-y-6">
+          <section className="rounded-lg border border-[--border] bg-[--surface] p-6">
+            <h2 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[--text-secondary]">
+              Publish Content
+            </h2>
             <form onSubmit={handlePublish} className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm text-neutral-400">Title</label>
+                <label className={labelClass}>Title</label>
                 <input
                   required
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-violet-500 focus:outline-none"
+                  className={inputClass}
                   placeholder="AI x Crypto Weekly #1"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-neutral-400">Description (teaser)</label>
+                <label className={labelClass}>Description (teaser)</label>
                 <textarea
                   required
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-violet-500 focus:outline-none"
+                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-neutral-400">IPFS CID (encrypted content)</label>
+                <label className={labelClass}>IPFS CID</label>
                 <input
                   required
                   value={form.ipfsCid}
                   onChange={(e) => setForm({ ...form, ipfsCid: e.target.value })}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-sm text-neutral-100 focus:border-violet-500 focus:outline-none"
+                  className={`${inputClass} font-mono`}
                   placeholder="bafybeig..."
                 />
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="mb-1 block text-sm text-neutral-400">Price (VARA)</label>
+                  <label className={labelClass}>Price (VARA)</label>
                   <input
                     type="number"
                     min="0.1"
@@ -126,49 +136,52 @@ export default function CreatorPage() {
                     required
                     value={form.price}
                     onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-violet-500 focus:outline-none"
+                    className={inputClass}
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="mb-1 block text-sm text-neutral-400">Type</label>
+                  <label className={labelClass}>Type</label>
                   <select
                     value={form.contentType}
-                    onChange={(e) => setForm({ ...form, contentType: e.target.value as 'Article' | 'Newsletter' })}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100"
+                    onChange={(e) =>
+                      setForm({ ...form, contentType: e.target.value as 'Article' | 'Newsletter' })
+                    }
+                    className={inputClass}
                   >
                     <option value="Article">Article</option>
                     <option value="Newsletter">Newsletter</option>
                   </select>
                 </div>
               </div>
-              <button
-                type="submit"
-                className="w-full rounded-lg bg-violet-600 py-2.5 font-semibold text-white hover:bg-violet-500"
-              >
+              <Button type="submit" fullWidth>
                 Publish
-              </button>
+              </Button>
             </form>
-            {status && <p className="mt-3 text-sm text-neutral-400">{status}</p>}
+            {status && (
+              <p
+                className={`mt-3 text-sm ${
+                  status.startsWith('Error') ? 'text-red-400' : 'text-[--text-secondary]'
+                }`}
+              >
+                {status}
+              </p>
+            )}
           </section>
 
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-neutral-200">Revenue</h2>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleCheckRevenue}
-                className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 hover:border-neutral-500"
-              >
+          <section className="rounded-lg border border-[--border] bg-[--surface] p-6">
+            <h2 className="mb-5 text-sm font-semibold uppercase tracking-widest text-[--text-secondary]">
+              Revenue
+            </h2>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={handleCheckRevenue}>
                 Check Balance
-              </button>
+              </Button>
               {revenue && (
                 <>
-                  <span className="font-semibold text-violet-400">{revenue}</span>
-                  <button
-                    onClick={handleClaim}
-                    className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
-                  >
+                  <span className="font-mono text-sm font-semibold text-[--accent]">{revenue}</span>
+                  <Button variant="primary" size="sm" onClick={handleClaim}>
                     Claim
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
