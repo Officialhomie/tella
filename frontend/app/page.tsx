@@ -56,23 +56,25 @@ export default function HomePage() {
   return (
     <main className="flex-1" ref={pageRef as React.RefObject<HTMLElement>}>
       {/* ── Hero ── */}
-      <section className="border-b border-[--border] px-4 pb-20 pt-24">
+      <section className="border-b border-[--border] px-4 pb-14 pt-14 sm:pb-20 sm:pt-24">
         <div className="mx-auto max-w-5xl">
 
           {/* Terminal prompt — signature moment */}
           <div
-            className="mb-8 inline-flex items-center gap-2 rounded border border-[--border-strong] bg-[--surface] px-4 py-2 font-mono text-xs text-[--text-secondary]"
+            className="mb-6 flex max-w-full items-center gap-2 overflow-hidden rounded border border-[--border-strong] bg-[--surface] px-4 py-2 font-mono text-xs text-[--text-secondary] w-fit"
             data-reveal
           >
-            <span className="text-[--accent]">$</span>
-            <span>vara-agent</span>
-            <span className="text-[--text-muted]">--run</span>
-            <span className="text-[--text-primary]">generate-digest</span>
-            <span className="inline-block h-3 w-1.5 bg-[--accent] animate-[blink_1s_step-end_infinite]" />
+            <span className="shrink-0 text-[--accent]">$</span>
+            <span className="shrink-0">tella</span>
+            <span className="hidden shrink-0 text-[--text-muted] sm:inline">--run</span>
+            <span className="truncate text-[--text-primary]">generate-digest</span>
+            <span className="shrink-0 inline-block h-3 w-1.5 bg-[--accent] animate-[blink_1s_step-end_infinite]" />
           </div>
 
+          {/* Fluid headline — clamp scales from 32px → 60px */}
           <h1
-            className="mb-6 max-w-2xl font-mono text-4xl font-bold leading-[1.1] tracking-tight text-[--text-primary] sm:text-5xl lg:text-6xl"
+            className="mb-5 max-w-2xl font-mono font-bold leading-[1.08] tracking-tight text-[--text-primary]"
+            style={{ fontSize: 'clamp(2rem, 5.5vw, 3.75rem)' }}
             data-reveal
           >
             AI × Crypto
@@ -83,23 +85,27 @@ export default function HomePage() {
           </h1>
 
           <p
-            className="mb-10 max-w-md text-base leading-relaxed text-[--text-secondary]"
+            className="mb-8 max-w-md text-sm leading-relaxed text-[--text-secondary] sm:text-base"
             data-reveal
           >
             Daily AI-generated digests and deep-dives on artificial intelligence and crypto.
             Buy a VARA pass once — yours on-chain, forever.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3" data-reveal>
+          {/* CTAs — stacked on mobile, inline on sm+ */}
+          <div
+            className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+            data-reveal
+          >
             <Link
               href="/browse"
-              className="rounded-lg bg-[--accent] px-7 py-2.5 text-sm font-semibold text-black transition-all duration-[--dur-fast] hover:bg-[--accent-dim] hover:-translate-y-px hover:shadow-[--shadow-glow]"
+              className="flex min-h-[48px] items-center justify-center rounded-lg bg-[--accent] px-7 text-sm font-semibold text-black transition-all duration-[150ms] hover:bg-[--accent-dim] hover:-translate-y-px hover:shadow-[var(--shadow-glow)] sm:min-h-[42px]"
             >
               Browse Content
             </Link>
             <Link
               href="/creator"
-              className="rounded-lg border border-[--border-strong] px-7 py-2.5 text-sm font-semibold text-[--text-secondary] transition-colors duration-[--dur-fast] hover:border-[--text-muted] hover:text-[--text-primary]"
+              className="flex min-h-[48px] items-center justify-center rounded-lg border border-[--border-strong] px-7 text-sm font-semibold text-[--text-secondary] transition-colors duration-[150ms] hover:border-[--text-muted] hover:text-[--text-primary] sm:min-h-[42px]"
             >
               Publish Content
             </Link>
@@ -108,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ── */}
-      <section className="mx-auto max-w-5xl px-4 py-16">
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <div
           className="grid grid-cols-1 divide-y divide-[--border] sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           data-reveal-stagger
@@ -116,7 +122,7 @@ export default function HomePage() {
           {features.map((item) => (
             <div
               key={item.label}
-              className="py-8 sm:px-8 sm:py-0 first:pt-0 last:pb-0 sm:first:pl-0 sm:last:pr-0"
+              className="py-7 first:pt-0 last:pb-0 sm:px-8 sm:py-0 sm:first:pl-0 sm:last:pr-0"
             >
               <div className="mb-4 flex h-8 w-8 items-center justify-center rounded border border-[--border-strong] bg-[--surface]">
                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="text-[--accent]">
