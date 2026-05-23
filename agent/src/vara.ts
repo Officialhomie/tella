@@ -8,7 +8,7 @@ import { patchEncodedPayload } from './sails-payload.ts'
 const exec = promisify(execFile)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DEFAULT_IDL = join(__dirname, '../content_agent.idl')
+const DEFAULT_IDL = join(__dirname, '../tella.idl')
 
 const NETWORK = process.env.NETWORK ?? 'testnet'
 const ACCOUNT = process.env.VARA_ACCOUNT ?? 'agent-wallet'
