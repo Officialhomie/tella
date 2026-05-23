@@ -2,265 +2,387 @@
 
 ## What is Tella?
 
-Tella is an autonomous AI agent that writes and sells encrypted news digests on a blockchain. No middleman. No platform. The agent earns crypto every time someone buys access to its content.
+Tella is an autonomous AI agent that writes and sells encrypted news digests on Vara Network. No middleman platform: content metadata and access control live on-chain; the encrypted body lives on IPFS.
 
-There are three parts:
-
-| Part | What it is |
-|---|---|
-| **Agent** | Node.js daemon — runs Claude, encrypts content, publishes on-chain |
-| **Contract** | Rust WASM on Vara Network — handles payments, access control, revenue |
-| **Frontend** | Next.js dApp — browse content, buy passes, decrypt and read |
+| Part | Path | Role |
+|------|------|------|
+| **Agent** | `agent/` | Node.js daemon — Claude research, AES encryption, Pinata pin, on-chain publish |
+| **Contract** | `contracts/tella/` | Rust/Sails WASM (`ContentAgent`) — publish, passes, treasury |
+| **Frontend** | `frontend/` | Next.js dApp — browse, buy passes, decrypt in-browser, creator dashboard |
 
 ---
 
-## What the Agent Does (Step by Step)
+## Frontend routes
 
-Every day at **09:00 UTC**, the agent runs this pipeline automatically:
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing — product overview and CTAs |
+| `/browse` | List published content (`Content/ListContent`) |
+| `/post/[id]` | Article page — teaser visible; body gated behind pass |
+| `/my-passes` | Passes owned by connected wallet |
+| `/creator` | **Creator dashboard** — manual publish + check/claim revenue |
 
-### Step 1 — Research (Claude + web search)
-The agent calls Claude Haiku with the `web_search` tool. It searches for the latest AI x Crypto news from the past 7 days, finds the top 3 stories, and writes a 600–900 word analyst digest. No human involved.
-
-The persona is locked in `agent/prompts/persona.md`:
-- Tone: confident, direct, no hype — like a seasoned analyst briefing a client
-- Format: TL;DR → 3 story sections → "This Week's Signal" (one actionable takeaway)
-- Output: JSON with `title`, `description` (paywall teaser), and `body` (full article)
-
-### Step 2 — Encrypt
-The agent generates a fresh **AES-256-GCM** key + IV pair. It encrypts the full article body. The ciphertext (not the key) goes to IPFS. The key stays with the agent temporarily.
-
-### Step 3 — Pin to IPFS (Pinata)
-The encrypted ciphertext is pinned to IPFS via Pinata. The returned CID is a permanent, decentralised address for the encrypted blob. Anyone can fetch it, but without the key it's unreadable.
-
-### Step 4 — Publish On-Chain
-The agent calls `Content/Publish` on the Vara smart contract with:
-- `title` — the headline
-- `description` — the teaser (visible to everyone, no paywall)
-- `ipfs_cid` — where the encrypted content lives
-- `price` — in VARA (default: 1 VARA = 1,000,000,000,000 units)
-- `encrypted_aes_key` — `"key_hex:iv_hex"` stored on-chain, gated by the contract
-- `content_type` — `Newsletter` or `Article`
-
-The contract assigns it a sequential ID (1, 2, 3...) and emits a `ContentPublished` event.
-
-### Step 5 — Announce (Vara Agent Network)
-If configured, the agent posts a message to the Vara Agent Network chat:
-> "New digest live! #1: 'AI x Crypto Weekly #21...' — available now on the content platform."
-
-### Step 6 — Watch for New Subscribers
-Concurrently, the agent listens for `PassMinted` events. Every time someone buys a pass, it posts a welcome message:
-> "New subscriber! 0x1234...abcd just unlocked content #1. Stay sharp — new digest drops every day at 09:00 UTC."
+Readers use **Browse** → open a post → connect wallet → **Buy Access Pass**.  
+Creators can use the **agent** (automated) or **Publish** in the nav (`/creator`) for manual on-chain publishing.
 
 ---
 
-## The Money Flow
+## What the agent does (automated pipeline)
 
-```
-Reader pays price in VARA
-        |
-        v
-Contract: MintPass(content_id, value=price)
-        |
-        |-- Verifies value >= price
-        |-- Records pass: (content_id, reader_address) -> PassInfo
-        |-- Accrues price to creator's pending revenue
-        |
-        v
-Creator calls Treasury/ClaimRevenue()
-        |
-        v
-Revenue cleared, creator receives VARA
+Every day at **13:00 UTC** (08:00 EST / 14:00 CET / 21:00 SGT), the agent runs this pipeline (unless `DRY_RUN` or `RUN_ONCE`):
+
+### 1 — Research (Claude + web search)
+
+Calls Anthropic with the `web_search` tool (`web_search_20250305`). It searches AI × crypto news from the past 7 days, picks the top three stories, and returns structured JSON.
+
+Persona: `agent/prompts/persona.md` (**SassyOnchain** — educator voice, curiosity-driven, beginner-friendly).
+
+Required JSON:
+
+```json
+{
+  "title": "AI x Crypto Weekly #N — <headline>",
+  "description": "<paywall teaser>",
+  "body": "<full markdown article>"
+}
 ```
 
-### For the reader:
-1. Browse `/browse` — see all digests (title, description, price, reader count)
-2. Click a digest — see the paywall
-3. Connect Polkadot.js / Talisman wallet
-4. Click "Mint Pass" — sends VARA to the contract
-5. Contract verifies payment and records the pass
-6. Reader can now call `Content/RequestAccessKey` — contract checks the pass and returns the AES key
-7. Browser decrypts the IPFS ciphertext client-side — full article appears
+Newsletter body structure: **TL;DR** → three story sections → **This Week's Signal** (600–900 words).  
+Model default: `claude-haiku-4-5` (`ANTHROPIC_MODEL` in `agent/.env.local`).
 
-### For the creator (you):
-- Revenue accumulates in the contract as each pass is minted
-- Call `Treasury/ClaimRevenue()` any time to sweep all pending VARA to your wallet
-- No per-transaction fees to you — the contract handles everything
+### 2 — Encrypt
 
-### Pricing:
-- Default price: **1 VARA** per digest (`DAILY_DIGEST_PRICE=1000000000000` in `agent/.env.local`)
-- Set any price you want — 0.1 VARA, 5 VARA, 100 VARA
-- Price is set per piece of content at publish time and cannot be changed after
+Generates a fresh **AES-256-GCM** key + IV. Encrypts `body`. Ciphertext goes to IPFS; the key is encoded as `key_hex:iv_hex` for on-chain storage.
 
----
+### 3 — Pin to IPFS (Pinata)
 
-## Why It's Useful
+Encrypted blob is pinned via Pinata (`PINATA_API_KEY`, `PINATA_SECRET_KEY`). The CID is the permanent address of the ciphertext.
 
-**For creators:**
-- Fully autonomous — write and publish daily without lifting a finger
-- No platform risk — content lives on IPFS, revenue logic lives on-chain
-- No subscription management — the contract handles who has access
-- Instant global payments — any Vara wallet can buy, no KYC, no geography restrictions
-- Creator always has free access to their own content
+### 4 — Publish on-chain
 
-**For readers:**
-- Pay once per piece — no recurring subscription to cancel
-- Content is verifiably on-chain — you can always check the pass exists
-- Decryption happens in the browser — the key never leaves the contract without a valid pass
-- Passes are permanent — your access doesn't expire
+Calls `Content/Publish` via `vara-wallet` with:
 
-**For the demo:**
-- The agent is live on Vara testnet right now with content already published
-- Full end-to-end flow works: browse → buy → decrypt
-- Contract is open source, auditable, 300 lines of Rust
+| Field | Notes |
+|-------|--------|
+| `title` | Headline |
+| `description` | Teaser (public, no pass required) |
+| `ipfs_cid` | Pinata CID |
+| `price` | Smallest VARA units (`DAILY_DIGEST_PRICE`, default `1000000000000` = 1 VARA) |
+| `encrypted_aes_key` | `"key_hex:iv_hex"` |
+| `content_type` | Agent digests use `Newsletter` |
+
+Contract assigns sequential IDs (`1`, `2`, `3`, …) and emits `ContentPublished`.
+
+### 5 — Announce (optional)
+
+If `AGENT_NETWORK_PID` is set, posts a short message to the Vara Agent Network chat after publish.
+
+### 6 — Listen for subscribers
+
+While the daemon runs, subscribes to `PassMinted` and can post a welcome message to agent chat (when agent network is configured).
 
 ---
 
-## How to Tweak It
+## Manual publishing (creator dashboard)
 
-### Change the topic / persona
-Edit `agent/prompts/persona.md`. This is the Claude system prompt. You can make the agent write about:
-- DeFi protocols only
-- Solana ecosystem news
-- AI infrastructure funding rounds
-- Regulatory developments
-- Any niche you want
+`/creator` is a **second path** that does not run Claude or Pinata:
 
-The output format (JSON with title/description/body) must stay the same, but everything else is fair game.
+1. Connect a Polkadot-compatible wallet (Talisman, SubWallet, etc.).
+2. Fill **Title**, **Description (teaser)**, **IPFS CID** (you must pin encrypted content yourself), **Price (VARA)**, **Type** (`Article` or `Newsletter`).
+3. Click **Publish** — the browser generates an AES key and calls `Content/Publish` from the connected wallet.
+4. Use **Check Balance** / **Claim** under **Revenue** for `Treasury/GetPendingRevenue` and `Treasury/ClaimRevenue`.
 
-### Change the price
-In `agent/.env.local`:
+Use this for demos when the agent is not running or when testing with a pre-pinned CID.
+
+---
+
+## The money flow
+
 ```
+Reader sends price in VARA
+        │
+        ▼
+Pass/MintPass(content_id)  [attached value = price]
+        │
+        ├── Verifies value >= price
+        ├── Records pass: (content_id, reader) → PassInfo
+        └── Accrues price to creator pending revenue
+        │
+        ▼
+Creator: Treasury/ClaimRevenue()
+        │
+        ▼
+Pending revenue cleared; VARA to creator wallet
+```
+
+### Reader flow (browser)
+
+1. Open `/browse` — cards show title, teaser, price, pass count.
+2. Open `/post/[id]` — title and description are public; body is gated.
+3. **Connect Wallet** in the header.
+4. Click **Buy Access Pass — {price} VARA** and approve the transaction.
+5. After the pass is recorded, the app **automatically** checks access, calls `Content/RequestAccessKey`, fetches ciphertext via `/api/ipfs-proxy`, and decrypts in the browser.
+6. Owned passes also appear under `/my-passes`.
+
+### Creator flow
+
+- Revenue accrues on each `MintPass`.
+- Claim from `/creator` (**Claim**) or via `Treasury/ClaimRevenue` on-chain.
+- Creators can read their own content without a pass (contract allows creator + pass holders).
+
+### Pricing
+
+- **1 VARA** = `1_000_000_000_000` smallest units.
+- Agent default: `DAILY_DIGEST_PRICE=1000000000000` in `agent/.env.local`.
+- Price is fixed per content at publish time.
+
+---
+
+## Why it's useful
+
+**Creators**
+
+- Autonomous daily digests (agent cron) or manual publish (dashboard).
+- No platform custody — IPFS blob + on-chain gate.
+- One-time passes, no subscription stack.
+- Global VARA payments from any compatible wallet.
+
+**Readers**
+
+- Pay once per piece; pass stored on-chain.
+- Decryption in-browser after `RequestAccessKey`; ciphertext via app IPFS proxy.
+- Passes do not expire in the current contract.
+
+**Demos**
+
+- Full path: browse → buy pass → decrypt.
+- Contract is open source (~500 lines in `contracts/tella/app/src/lib.rs`).
+- After deploy, run `run-once` or wait for cron to seed content.
+
+---
+
+## Configuration
+
+### Agent — `agent/.env.local`
+
+Copy from `agent/.env.example`:
+
+| Variable | Purpose |
+|----------|---------|
+| `ANTHROPIC_API_KEY` | Claude API |
+| `ANTHROPIC_MODEL` | Default `claude-haiku-4-5` |
+| `PINATA_API_KEY` / `PINATA_SECRET_KEY` | IPFS pin (required for production) |
+| `PROGRAM_ID` | Deployed Sails program ID |
+| `CONTRACT_IDL` | Default `./tella.idl` |
+| `NETWORK` | Default `testnet` |
+| `VARA_ACCOUNT` | `vara-wallet` account name (default `agent-wallet`) |
+| `DAILY_DIGEST_PRICE` | Smallest units per digest |
+| `AGENT_NETWORK_PID` | Optional agent-network program |
+| `AGENT_NETWORK_IDL` | Optional IDL for chat |
+| `IPFS_GATEWAY` | Default Pinata gateway |
+
+### Frontend — `frontend/.env.local`
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_PROGRAM_ID` | Same program ID as agent |
+| `NEXT_PUBLIC_NETWORK` | e.g. `testnet` |
+
+`scripts/deploy.sh` writes `PROGRAM_ID` / `NEXT_PUBLIC_PROGRAM_ID` and copies `tella.idl` into `agent/` and `frontend/lib/`.
+
+---
+
+## How to tweak
+
+### Persona / topic
+
+Edit `agent/prompts/persona.md`. Keep the JSON shape (`title`, `description`, `body`). Tone, structure, and research focus are otherwise flexible.
+
+### Price
+
+```bash
+# agent/.env.local
 DAILY_DIGEST_PRICE=5000000000000   # 5 VARA
 ```
-Restart the agent. New digests will use the new price. Old digests keep their original price.
 
-### Change the schedule
-In `agent/src/index.ts`, line 89:
+Restart the agent. New digests use the new price; existing content keeps its original price.
+
+### Schedule
+
+`agent/src/index.ts` (cron at line ~89):
+
 ```ts
-cron.schedule('0 9 * * *', ...)   // currently: 09:00 UTC daily
-cron.schedule('0 */6 * * *', ...) // every 6 hours
-cron.schedule('0 9 * * 1', ...)   // every Monday
+cron.schedule('0 13 * * *', ...)   // 13:00 UTC daily (default — 08:00 EST / 21:00 SGT)
+cron.schedule('0 */6 * * *', ...)  // every 6 hours
+cron.schedule('0 13 * * 1', ...)   // Mondays 13:00 UTC
 ```
 
-### Change the AI model
-In `agent/.env.local`:
-```
-ANTHROPIC_MODEL=claude-opus-4-6    # deepest research, higher cost
-ANTHROPIC_MODEL=claude-haiku-4-5   # default — fast, cheap
-ANTHROPIC_MODEL=claude-sonnet-4-6  # middle ground
-```
+### Model
 
-### Publish manually (one-shot)
 ```bash
-cd agent
-RUN_NOW=true RUN_ONCE=true npm run run-once:now
+ANTHROPIC_MODEL=claude-sonnet-4-6
+ANTHROPIC_MODEL=claude-haiku-4-5   # default
 ```
 
-### Dry run (generate content, skip chain + IPFS)
-```bash
-cd agent
-DRY_RUN=true npm run dev:dry
-```
-Useful for testing the Claude output without spending VARA or Pinata credits.
+### Agent commands
 
-### Add a deep-dive article
-The agent has a `generateDeepDive(topic)` function in `agent/src/claude.ts`. You can call it from a script to publish a long-form (1000–1500 word) article on any specific topic, then call `publishContent()` with `contentType: 'Article'`.
+| Command | What it does |
+|---------|----------------|
+| `npm run dev:dry` | Daemon + cron; `DRY_RUN=true` skips IPFS and chain |
+| `npm run dev` | Production daemon (needs env + deployed contract) |
+| `RUN_NOW=true npm run dev` | Run one digest on startup, then keep scheduling |
+| `npm run run-once` | One production digest, then exit |
+| `npm run run-once:now` | Same, immediately (`RUN_ONCE=true RUN_NOW=true`) |
+
+`RUN_ONCE` and `DRY_RUN` cannot be combined (production-only).
+
+### Deep-dive articles
+
+`generateDeepDive(topic)` in `agent/src/claude.ts` (1000–1500 words). Wire a small script to call it, then encrypt, pin, and `publishContent` with `contentType: 'Article'`.
 
 ---
 
-## Running the Full Demo
+## Running the full demo
 
 ### Prerequisites
-- Vara testnet wallet with VARA for gas
-- `vara-wallet` CLI installed and `agent-wallet` account configured
-- Pinata account with API keys
-- Anthropic API key
-- Contract deployed (`scripts/deploy.sh`)
 
-### Live contract (already deployed)
+- [ ] Vara testnet VARA on agent wallet and demo reader wallet  
+- [ ] `vara-wallet` CLI — `scripts/setup-agent.sh` creates `agent-wallet` and requests faucet  
+- [ ] Contract built and deployed — `bash scripts/deploy.sh`  
+- [ ] `agent/.env.local` and `frontend/.env.local` with matching `PROGRAM_ID`  
+- [ ] Pinata + Anthropic keys (for agent runs)  
+- [ ] Browser extension wallet (Talisman, SubWallet, or Polkadot{.js})
+
+### One-time setup
+
+```bash
+bash scripts/setup-agent.sh
+bash scripts/deploy.sh
+# Copy agent/.env.example → agent/.env.local and fill secrets
+# Ensure frontend/.env.local has NEXT_PUBLIC_PROGRAM_ID and NEXT_PUBLIC_NETWORK
 ```
-Program ID: 0x3e5d05290802f0139f9f04b71fe3ba975a758c4e09ea2c7de75d258a5a63fafb
-Network:    Vara testnet
-Content #1: AI x Crypto Weekly #21 — Infrastructure Wars
-IPFS:       bafkreiehww5jxo57vwjyzsovegqak4sjw5kv5u4i5oskq746ikbcjkcxm4
+
+Patch IDL for wallet if needed:
+
+```bash
+bash scripts/fix-idl-for-wallet.sh agent/tella.idl
 ```
+
+### Seed content (pick one)
+
+```bash
+# Agent: one digest now, then exit
+cd agent && npm run run-once:now
+
+# Or dry-run only (no chain/IPFS)
+cd agent && npm run dev:dry
+# with RUN_NOW=true in another terminal session if you want immediate generation
+```
+
+Or publish manually at `/creator` with a CID you already pinned.
 
 ### Start the frontend
+
 ```bash
 cd frontend
 npm run dev
-# open http://localhost:3000
+# http://localhost:3000
 ```
 
-### Demo script (show to audience)
-1. Open `/browse` — show content #1 in the list with title, price, reader count
-2. Click the card — show the paywall page with title, description visible but body locked
-3. Connect wallet (Polkadot.js or Talisman)
-4. Click "Mint Pass" — confirm transaction in wallet
-5. After confirmation, click "Read" — browser fetches the IPFS ciphertext, calls `RequestAccessKey`, decrypts in browser
-6. Full article appears
+Production deploy: `cd frontend && vercel --prod` (set env vars in Vercel).
 
-### Show the agent running
+---
+
+## Demo script (audience walkthrough)
+
+### A — Reader buys and reads
+
+1. Open **`/browse`** — show cards (title, price, pass count).
+2. Open a post — public title/description; gated body area.
+3. **Connect Wallet** in the nav.
+4. Click **Buy Access Pass — {n} VARA** — approve in the extension.
+5. Wait for confirmation — UI shows “Access granted. Content unlocking…” then decrypts automatically (no separate “Read” button).
+6. Show **`/my-passes`** for purchased content.
+
+### B — Creator revenue
+
+1. Open **`/creator`** (nav label **Publish**).
+2. **Check Balance** → pending VARA.
+3. **Claim** → `Treasury/ClaimRevenue`.
+
+### C — Agent (optional terminal)
+
 ```bash
 cd agent
-npm run dev        # starts the daemon, waits for 09:00 UTC
-# or force-run now:
-RUN_NOW=true npm run dev
+npm run run-once:now
 ```
-Watch the logs:
+
+Example logs:
+
 ```
 [agent] Starting digest generation...
-[agent] Generated: "AI x Crypto Weekly #21 — ..."
-[agent] Pinned to IPFS: bafkrei...
-[vara] message sent: 0xca4c...
+[agent] Generated: "AI x Crypto Weekly #…"
+[agent] Pinned to IPFS: bafy…
 [agent] Published on-chain: content #2
+```
+
+For a long-running daemon:
+
+```bash
+cd agent && npm run dev
+# Scheduled for 13:00 UTC; use RUN_NOW=true to fire once at startup
 ```
 
 ---
 
-## Architecture in One Diagram
+## Architecture
 
 ```
-                         AGENT (runs 09:00 UTC daily)
-                                |
-                    Claude Haiku + web_search
-                                |
-                         writes digest JSON
-                                |
-                    AES-256-GCM encrypt body
-                                |
-              +-----------------+------------------+
-              |                                    |
-         encrypted blob                    key_hex:iv_hex
-              |                                    |
-         Pinata IPFS                       Vara Contract
-         (public CID)                  Content/Publish(...)
-                                               |
-                                     emits ContentPublished
+                    AGENT (cron 13:00 UTC or RUN_ONCE)
+                              │
+                 Claude + web_search (persona.md)
+                              │
+                    JSON: title, description, body
+                              │
+                   AES-256-GCM encrypt body
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+        ciphertext                      key_hex:iv_hex
+              │                               │
+         Pinata IPFS                   Content/Publish
+         (public CID)                  (Sails on Vara)
+                                              │
+                                    ContentPublished event
 
 
-                         READER (browser)
-                                |
-               browses /browse  ->  listContent() query
-               clicks digest    ->  getContent() query
-               connects wallet  ->  Polkadot.js / Talisman
-               mints pass       ->  Pass/MintPass(content_id, value=price)
-                                       |
-                                   creator revenue += price
-                                |
-               requests key     ->  Content/RequestAccessKey(content_id)
-                                       |
-                                   contract checks: has pass OR is creator
-                                   returns: "key_hex:iv_hex"
-                                |
-               browser decrypts ->  AES-256-GCM decrypt(IPFS blob, key, iv)
-               reads article    ->  full markdown rendered
+                    READER (browser /post/[id])
+                              │
+              /browse → Content/ListContent
+              connect wallet (extension)
+              Pass/MintPass + value
+                              │
+              Content/RequestAccessKey (pass or creator)
+                              │
+              /api/ipfs-proxy?cid=… → ciphertext
+                              │
+              AES decrypt in browser → markdown render
 
 
-                         CREATOR (you)
-                                |
-               checks revenue   ->  Treasury/GetPendingRevenue(address)
-               claims revenue   ->  Treasury/ClaimRevenue()
-                                       |
-                                   VARA sent to wallet
+              CREATOR (/creator or agent wallet)
+                              │
+              Treasury/GetPendingRevenue
+              Treasury/ClaimRevenue → VARA
 ```
+
+---
+
+## Contract surface (Sails program `ContentAgent`)
+
+| Service | Methods used by Tella |
+|---------|------------------------|
+| **Content** | `Publish`, `ListContent`, `GetContent`, `RequestAccessKey` |
+| **Pass** | `MintPass`, `CheckAccess`, `GetUserPasses` |
+| **Treasury** | `GetPendingRevenue`, `ClaimRevenue` |
+
+Build artifacts: `contracts/tella/target/wasm32-gear/release/tella.opt.wasm`, `tella.idl`.

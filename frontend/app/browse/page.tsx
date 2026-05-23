@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { listContent, type ContentMeta } from '@/lib/contract'
 import { ContentCard } from '@/components/ContentCard'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { DigestCountdown } from '@/components/DigestCountdown'
 
 export default function BrowsePage() {
   const [content, setContent] = useState<ContentMeta[]>([])
@@ -33,6 +34,8 @@ export default function BrowsePage() {
         </p>
       </div>
 
+      <DigestCountdown variant="banner" />
+
       {loading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -50,7 +53,7 @@ export default function BrowsePage() {
       {!loading && !error && content.length === 0 && (
         <EmptyState
           title="No content published yet."
-          description="The agent publishes daily at 09:00 UTC."
+          description="The agent publishes daily at 13:00 UTC (08:00 EST / 21:00 SGT)."
         />
       )}
 

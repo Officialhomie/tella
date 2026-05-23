@@ -2,7 +2,7 @@
  * Tella — AI x Crypto News Analyst
  *
  * Runs two concurrent loops:
- * 1. Cron: generates + publishes a new digest daily at 09:00 UTC
+ * 1. Cron: generates + publishes a new digest daily at 13:00 UTC
  * 2. Event listener: watches PassMinted events and sends welcome messages
  *
  * Set DRY_RUN=true to generate content without touching the chain or IPFS.
