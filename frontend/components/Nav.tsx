@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { WalletConnect } from './WalletConnect'
+import { ThemeToggle } from './ThemeToggle'
 import { useWallet } from '@/app/providers'
 
 const links = [
@@ -54,8 +55,9 @@ export function Nav() {
           ))}
         </nav>
 
-        {/* Right: wallet + hamburger */}
+        {/* Right: theme toggle + wallet + hamburger */}
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <WalletConnect connected={wallet} onConnect={setWallet} />
 
           {/* Hamburger — mobile only */}
