@@ -1,6 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-const GATEWAY = process.env.IPFS_GATEWAY ?? 'https://gateway.pinata.cloud/ipfs'
+// Pinata's public gateway now requires auth. Try multiple reliable gateways in order.
+const GATEWAYS = [
+  process.env.IPFS_GATEWAY ?? null,
+  'https://ipfs.io/ipfs',
+  'https://cloudflare-ipfs.com/ipfs',
+  'https://dweb.link/ipfs',
+].filter(Boolean) as string[]
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const cid = req.nextUrl.searchParams.get('cid')
@@ -8,19 +14,25 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'invalid cid' }, { status: 400 })
   }
 
-  const res = await fetch(`${GATEWAY}/${cid}`, {
-    headers: { Accept: 'text/plain' },
-  })
-
-  if (!res.ok) {
-    return NextResponse.json(
-      { error: 'upstream fetch failed' },
-      { status: res.status },
-    )
+  for (const gateway of GATEWAYS) {
+    try {
+      const res = await fetch(`${gateway}/${cid}`, {
+        headers: { Accept: 'text/plain' },
+        signal: AbortSignal.timeout(10_000),
+      })
+      if (!res.ok) continue
+      const body = await res.text()
+      return new NextResponse(body, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      })
+    } catch {
+      // gateway timed out or errored — try next
+      continue
+    }
   }
 
-  const body = await res.text()
-  return new NextResponse(body, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  return NextResponse.json(
+    { error: 'content unavailable — all IPFS gateways failed' },
+    { status: 502 },
+  )
 }
