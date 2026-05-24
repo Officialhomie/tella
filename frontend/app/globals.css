@@ -58,6 +58,30 @@
   --z-toast:    2000;
 }
 
+/* ── Light Mode ───────────────────── */
+[data-theme="light"] {
+  --bg:             #f5f5f5;
+  --surface:        #ffffff;
+  --surface-raised: #efefef;
+  --border:         #e5e5e5;
+  --border-strong:  #d1d1d1;
+  --text-primary:   #0f0f0f;
+  --text-secondary: #525252;
+  --text-muted:     #a3a3a3;
+  --accent:         #16a34a;
+  --accent-dim:     #15803d;
+  --accent-subtle:  #dcfce7;
+  --danger:         #dc2626;
+  --danger-subtle:  #fef2f2;
+  --warning:        #d97706;
+  --warning-subtle: #fffbeb;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,0.10);
+  --shadow-glow: 0 0 32px rgba(22,163,74,0.15);
+}
+
 @theme inline {
   --color-bg:             var(--bg);
   --color-surface:        var(--surface);
@@ -92,6 +116,11 @@ body {
 ::selection {
   background: var(--accent-subtle);
   color: #4ade80;
+}
+
+[data-theme="light"] ::selection {
+  background: var(--accent-subtle);
+  color: #166534;
 }
 
 /* ── Focus Ring ───────────────────── */
@@ -219,6 +248,10 @@ body {
   color: #86efac;
 }
 
+[data-theme="light"] .article-signal-heading {
+  color: #166534;
+}
+
 .article-h3 {
   margin: 1.75rem 0 0.75rem;
   font-size: 1.0625rem;
@@ -230,6 +263,10 @@ body {
   margin: 0 0 1.25rem;
   color: #c4c4c4;
   line-height: 1.8;
+}
+
+[data-theme="light"] .article-p {
+  color: #374151;
 }
 
 .article-p:last-child {
@@ -293,6 +330,11 @@ body {
   color: #c4c4c4;
 }
 
+[data-theme="light"] .article-ul,
+[data-theme="light"] .article-ol {
+  color: #374151;
+}
+
 .article-ul {
   list-style: disc;
 }
@@ -335,6 +377,10 @@ body {
   color: #4ade80;
 }
 
+[data-theme="light"] .article-link:hover {
+  color: #15803d;
+}
+
 .article-code-inline {
   padding: 0.15em 0.4em;
   border-radius: var(--radius-sm);
@@ -342,6 +388,10 @@ body {
   font-family: var(--font-mono);
   font-size: 0.9em;
   color: #e5e5e5;
+}
+
+[data-theme="light"] .article-code-inline {
+  color: #1f2937;
 }
 
 .article-pre {
