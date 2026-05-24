@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import { DigestCountdown } from '@/components/DigestCountdown'
 
 const features = [
   {
@@ -110,6 +111,8 @@ export default function HomePage() {
               Publish Content
             </Link>
           </div>
+
+          <DigestCountdown variant="hero" />
         </div>
       </section>
 
