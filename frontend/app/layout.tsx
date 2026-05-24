@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   applicationName: "Tella",
 };
 
+const themeScript = `(function(){var t=localStorage.getItem('tella-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');else if(!t&&window.matchMedia('(prefers-color-scheme: light)').matches)document.documentElement.setAttribute('data-theme','light');})();`
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,6 +32,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-full bg-(--bg) text-(--text-primary) flex flex-col">
         <Providers>
           <Nav />
